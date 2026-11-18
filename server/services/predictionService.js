@@ -1,6 +1,11 @@
+const mongoose = require('mongoose');
 const { ValidationError } = require('../errors/error');
 const User = require('../models/userModel');
+const Match = require('../models/matchModel');
 const Prediction = require('../models/predictionModel');
+const { isValidScore } = require('../utils/scoring');
+
+const ObjectId = mongoose.Types.ObjectId;
 
 // Alle voorspellingen van één speler, met de match en de teams erbij.
 async function findByPlayer(userId) {
@@ -60,4 +65,33 @@ async function getRanking(userId) {
     };
 }
 
-module.exports = { findByPlayer, getRanking };
+// Actie 6a: een speler plaatst een voorspelling.
+async function placePrediction(matchId, userId, homeScore, awayScore) {
+    if (!isValidScore(homeScore) || !isValidScore(awayScore)) {
+        throw new ValidationError('homeScore and awayScore must be whole numbers of 0 or more');
+    }
+    if (!ObjectId.isValid(matchId)) {
+        throw new ValidationError('Match does not exist');
+    }
+    const match = await Match.findById(matchId);
+    if (!match) {
+        throw new ValidationError('Match does not exist');
+    }
+    if (match.status !== 'upcoming' || match.kickoffTime <= new Date()) {
+        throw new ValidationError('Match has already started or is finished');
+    }
+    const existing = await Prediction.findOne({ user: userId, match: match._id });
+    if (existing) {
+        throw new ValidationError('You already placed a prediction for this match');
+    }
+​
+    const prediction = new Prediction({
+        user: userId,
+        match: match._id,
+        homeScore: homeScore,
+        awayScore: awayScore
+    });
+    return prediction.save();
+}
+
+module.exports = { findByPlayer, getRanking, placePrediction };
