@@ -1,5 +1,3 @@
-// Eigen foutklassen. Elke klasse hoort bij één HTTP-statuscode
-// (die koppeling gebeurt in middleware/error.js).
 
 // 404 - iets bestaat niet (bv. een route die niet bestaat)
 class NotFoundError extends Error {
