@@ -14,3 +14,6 @@ POST {{baseUrl}}/security/login/check
 
 ### Nieuw access token vragen met het refresh token -> 200
 POST {{baseUrl}}/security/refresh
+
+### ---------- 3. TEAMS ----------
+GET {{baseUrl}}/teams
