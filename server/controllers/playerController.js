@@ -10,6 +10,14 @@ async function getPredictions(req, res, next) {
     }
 }
 
+// GET /player/ranking
+async function getRanking(req, res, next) {
+    try {
+        const ranking = await predictionService.getRanking(req.requestingUser._id);
+        res.status(200).json(ranking);
+    } catch (err) {
+        next(err);
+    }
+}
 
-
-module.exports = { getPredictions };
+module.exports = { getPredictions, getRanking };

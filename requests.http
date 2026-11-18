@@ -36,3 +36,5 @@ GET {{baseUrl}}/teams
 ### ---------- 4. MIJN VOORSPELLINGEN ----------
 GET {{baseUrl}}/player/predictions
 ​
+### ---------- 5. KLASSEMENT ----------
+GET {{baseUrl}}/player/ranking
