@@ -32,3 +32,7 @@ GET {{baseUrl}}/matches?status=bestaatniet
 
 ### ---------- 3. TEAMS ----------
 GET {{baseUrl}}/teams
+
+### ---------- 4. MIJN VOORSPELLINGEN ----------
+GET {{baseUrl}}/player/predictions
+​

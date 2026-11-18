@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const securityRouter = require('../routes/security');
 const teamRouter = require('../routes/team')
 const matchRouter = require('../routes/match');
+const playerRouter = require('../routes/player');
 const { errorHandler, routeNotFound } = require('../middleware/error');
 
 function loadExpress(corsOptions) {
@@ -22,6 +23,7 @@ function loadExpress(corsOptions) {
     app.use('/security', securityRouter);
     app.use('/teams', teamRouter);
     app.use('/matches', matchRouter);
+    app.use('/player', playerRouter);
 
     app.all('/{*splat}', routeNotFound);     // onbekende route -> 404
     app.use(errorHandler);                   // ALTIJD als laatste
