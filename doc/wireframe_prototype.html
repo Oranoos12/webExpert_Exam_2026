@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ontwerp Voorspellingen-app</title>
+<style>
+:root{--bg:#e2e8f0;--page:#f1f5f9;--green:#14532d;--green2:#16a34a;--text:#1e293b;--muted:#64748b;--line:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI",Arial,sans-serif;line-height:1.5}
+
+/* bovenbalk van dit document */
+#bar{position:sticky;top:0;z-index:20;background:#1e3a8a;color:#fff;padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+#bar b{margin-right:auto}
+#bar button{border:0;border-radius:8px;padding:.45rem .9rem;cursor:pointer;background:#fff;color:#1e3a8a;font-weight:600;font-size:.95rem}
+#bar button.active{background:#facc15;color:#000}
+main{max-width:1100px;margin:0 auto;padding:1rem 16px 4rem}
+h1{font-size:1.5rem;margin:.5rem 0}
+.explain{background:#fff;border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;border-inline-start:6px solid #0284c7}
+.tab{display:none}
+.tab.show{display:block}
+
+/* schermkaders */
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:1.4rem}
+.screens > div{min-width:0}
+.screen-title{font-weight:700;margin:0 0 .4rem}
+.frame{border:2px solid #475569;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.frame .browser{background:#cbd5e1;padding:.35rem .6rem;font-size:.75rem;font-family:Consolas,monospace;color:#334155;display:flex;gap:.4rem;align-items:center}
+.frame .browser i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#94a3b8}
+.frame .browser span{background:#fff;border-radius:4px;padding:0 .5rem;flex:1}
+
+/* ---------- WIREFRAME (low fidelity) ---------- */
+.wf{font-family:"Comic Sans MS","Segoe Print",cursive;color:#334155;padding:0;min-height:300px;background:#fff}
+.wf .w-top{border-bottom:2px solid #334155;padding:.5rem .8rem;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.wf .w-box{border:2px dashed #64748b;border-radius:6px;padding:.3rem .6rem;font-size:.85rem}
+.wf .w-body{padding:.8rem}
+.wf .w-line{height:10px;background:#cbd5e1;border-radius:5px;margin:.35rem 0}
+.wf .w-card{border:2px solid #64748b;border-radius:6px;padding:.5rem .7rem;margin:.5rem 0;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.wf .w-input{border:2px solid #64748b;border-radius:4px;height:28px;padding:0 .4rem;font-size:.8rem;display:flex;align-items:center;color:#94a3b8}
+.wf .w-btn{border:2px solid #334155;border-radius:4px;padding:.15rem .6rem;font-size:.8rem;background:#e2e8f0}
+.wf .w-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.wf table{width:100%;border-collapse:collapse;font-size:.8rem}
+.wf td,.wf th{border:1.5px solid #64748b;padding:.25rem .4rem;text-align:left}
+.note{display:inline-block;background:#fef08a;color:#713f12;font-family:"Segoe UI",Arial,sans-serif;font-size:.72rem;padding:.05rem .4rem;border-radius:4px;transform:rotate(-1deg);margin:.15rem 0}
+
+/* flow-diagram */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;background:#fff;border-radius:10px;padding:1rem;margin-bottom:1.4rem}
+.flow .node{border:2px solid #334155;border-radius:8px;padding:.4rem .8rem;font-weight:600;background:#f8fafc}
+.flow .arrow{color:#475569;font-weight:700}
+
+/* ---------- MOCKUP + PROTOTYPE (high fidelity, zelfde stijl als de echte app) ---------- */
+.app{background:var(--page);min-height:340px;font-size:.92rem}
+.app .topbar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;padding:.6rem 1rem;background:var(--green);color:#fff}
+.app .logo{font-weight:bold}
+.app nav{display:flex;flex-wrap:wrap;gap:.2rem;flex:1}
+.app nav a{color:#fff;text-decoration:none;padding:.3rem .6rem;border-radius:6px;cursor:pointer;font-size:.88rem}
+.app nav a.active{background:rgba(255,255,255,.2)}
+.app .user{display:flex;align-items:center;gap:.4rem;font-size:.85rem}
+.app .page{padding:1rem}
+.app h2{margin:.2rem 0 .8rem;font-size:1.3rem}
+.app .card{background:#fff;border-radius:10px;padding:.8rem 1rem;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.app .list{display:flex;flex-direction:column;gap:.6rem}
+.app .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
+.app .match{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:.6rem}
+.app .teams{font-weight:bold}
+.app .muted{color:var(--muted)}
+.app .badge{background:#dcfce7;color:#14532d;padding:.2rem .6rem;border-radius:999px;font-size:.85rem}
+.app .badge.closed{background:#e2e8f0;color:#475569}
+.app .highlight{background:#fef9c3;margin-bottom:.8rem}
+.app .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;margin-bottom:.8rem}
+.app input,.app select{padding:.4rem;border:1px solid #cbd5e1;border-radius:6px;font-size:.9rem}
+.app .toolbar input{flex:1;min-width:150px}
+.app button{padding:.4rem .9rem;border:none;border-radius:6px;background:var(--green2);color:#fff;font-size:.9rem;cursor:pointer}
+.app button.secondary{background:#475569}
+.app .login{max-width:300px;margin:1.2rem auto}
+.app .login form{display:flex;flex-direction:column;gap:.4rem}
+.app .pform{display:flex;align-items:center;gap:.3rem}
+.app .pform input{width:3.4rem}
+.app .error{background:#fee2e2;color:#b91c1c;padding:.5rem;border-radius:6px}
+.app .success{background:#dcfce7;color:#15803d;padding:.5rem;border-radius:6px}
+.app .table-wrap{overflow-x:auto}
+.app table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
+.app th,.app td{padding:.45rem;text-align:left;border-bottom:1px solid var(--line)}
+.app th{background:#f8fafc}
+.app tr.me{background:#fef9c3;font-weight:bold}
+.app .points{font-weight:bold;color:#15803d}
+.hint{background:#fff;border-radius:10px;padding:.6rem 1rem;margin-bottom:1rem;font-size:.92rem}
+.proto-frame{max-width:900px;margin:0 auto}
+
+@media (max-width:560px){ .screens{grid-template-columns:1fr} .wf .w-grid{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+
+<div id="bar">
+  <b>Ontwerp</b>
+  <button id="t-wire" class="active" onclick="showTab('wire')">1. Wireframe</button>
+  <button id="t-proto" onclick="showTab('proto')">2. Prototype (klikbaar)</button>
+</div>
+
+<main>
+
+<!-- ======================================================= WIREFRAME -->
+<section id="tab-wire" class="tab show">
+  <h1>1. Wireframe</h1>
+  <div class="explain">
+    <div><b>Wat is een wireframe?</b> Een ruwe schets van elk scherm: <b>waar</b> komt wat (navigatie, zoekbalk, lijst, knoppen). Geen kleuren, geen echte data. De gele briefjes leggen uit wat elk deel doet en welke API-route het gebruikt.</div>
+    
+  </div>
+
+  <div class="flow">
+    <span class="node">Login</span><span class="arrow">→</span>
+    <span class="node">Matches</span><span class="arrow">↔</span>
+    <span class="node">Teams</span><span class="arrow">↔</span>
+    <span class="node">Mijn voorspellingen</span><span class="arrow">↔</span>
+    <span class="node">Klassement</span>
+    <span class="muted explain" style="margin:0;padding:.3rem .7rem;border:0">Navigatiebalk bovenaan = elke pagina is met 1 klik bereikbaar.</span>
+  </div>
+
+  <div class="screens">
+    <div>
+      <p class="screen-title">A. Login</p>
+      <div class="frame"><div class="browser"><i></i><i></i><i></i><span>localhost:8082/</span></div>
+        <div class="wf">
+          <div class="w-top"><span class="w-box">LOGO</span><span class="w-box">Home</span></div>
+          <div class="w-body" style="max-width:260px;margin:1rem auto">
+            <div class="w-card" style="display:block">
+              <b>Inloggen</b>
+              <div style="margin-top:.4rem">[ Gebruikersnaam ]</div><div class="w-input">________</div>
+              <div style="margin-top:.4rem">[ Wachtwoord ]</div><div class="w-input">••••••••</div>
+              <div style="margin-top:.6rem" class="w-btn">[ Inloggen ]</div>
+            </div>
+            <span class="note">POST /security/login</span><br>
+            <span class="note">fout → rode melding</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="screen-title">B. Matches</p>
+      <div class="frame"><div class="browser"><i></i><i></i><i></i><span>localhost:8082/matches</span></div>
+        <div class="wf">
+          <div class="w-top"><span class="w-box">LOGO</span><span class="w-box">Home</span><span class="w-box"><b>Matches</b></span><span class="w-box">Teams</span><span class="w-box">Voorsp.</span><span class="w-box">Klass.</span><span style="margin-left:auto" class="w-box">user + [Uitloggen]</span></div>
+          <div class="w-body">
+            <b>Komende matches</b>
+            <div style="display:flex;gap:.5rem;margin:.4rem 0"><div class="w-input" style="flex:1">🔍 zoek op team</div><span>5 match(es)</span></div>
+            <span class="note">zoekbalk filtert op teamnaam</span>
+            <div class="w-card"><div>Team A vs Team B<div class="w-line" style="width:120px"></div></div><span class="w-box">Jouw voorspelling 1-0</span></div>
+            <div class="w-card"><div>Team C vs Team D<div class="w-line" style="width:120px"></div></div><span><span class="w-input" style="display:inline-flex;width:34px">0</span> - <span class="w-input" style="display:inline-flex;width:34px">0</span> <span class="w-btn">Voorspel</span></span></div>
+            <span class="note">GET /matches?status=upcoming</span> <span class="note">POST /matches/:id/predictions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="screen-title">C. Teams</p>
+      <div class="frame"><div class="browser"><i></i><i></i><i></i><span>localhost:8082/teams</span></div>
+        <div class="wf">
+          <div class="w-top"><span class="w-box">LOGO</span><span class="w-box">… navigatie …</span></div>
+          <div class="w-body">
+            <b>Teams</b>
+            <div class="w-input" style="margin:.4rem 0">🔍 zoek op naam of stad</div>
+            <div class="w-grid">
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+              <div class="w-card" style="display:block">Team<div class="w-line"></div></div>
+            </div>
+            <span class="note">GET /teams</span> <span class="note">raster van kaarten (naam + stad)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="screen-title">D. Mijn voorspellingen</p>
+      <div class="frame"><div class="browser"><i></i><i></i><i></i><span>localhost:8082/predictions</span></div>
+        <div class="wf">
+          <div class="w-top"><span class="w-box">LOGO</span><span class="w-box">… navigatie …</span></div>
+          <div class="w-body">
+            <b>Mijn voorspellingen</b>
+            <div style="display:flex;gap:.5rem;margin:.4rem 0;align-items:center"><span class="w-box">[ Alle ▾ ]</span><span>Totaal: X punten</span></div>
+            <span class="note">filter: alle / nog open / afgelopen</span>
+            <table><tr><th>Match</th><th>Datum</th><th>Voorsp.</th><th>Uitslag</th><th>Ptn</th></tr>
+              <tr><td>A - B</td><td>__/__</td><td>2-1</td><td>2-1</td><td>3</td></tr>
+              <tr><td>C - D</td><td>__/__</td><td>1-1</td><td>—</td><td>—</td></tr></table>
+            <span class="note">GET /player/predictions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="screen-title">E. Klassement</p>
+      <div class="frame"><div class="browser"><i></i><i></i><i></i><span>localhost:8082/ranking</span></div>
+        <div class="wf">
+          <div class="w-top"><span class="w-box">LOGO</span><span class="w-box">… navigatie …</span></div>
+          <div class="w-body">
+            <b>Klassement</b>
+            <div class="w-card" style="background:#fef9c3">Je staat op plaats X van Y met Z punten</div>
+            <div class="w-input" style="margin:.4rem 0">🔍 zoek speler</div>
+            <table><tr><th>Plaats</th><th>Speler</th><th>Punten</th></tr>
+              <tr><td>1</td><td>speler</td><td>5</td></tr>
+              <tr style="background:#fef9c3"><td>2</td><td><b>ik</b></td><td>4</td></tr></table>
+            <span class="note">GET /player/ranking</span> <span class="note">eigen rij gemarkeerd</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= PROTOTYPE -->
+<section id="tab-proto" class="tab">
+  <h1>2. Prototype (klikbaar)</h1>
+  <div class="explain">
+    <div><b>Wat is een prototype?</b> Een <b>klikbare</b> versie van de wireframe, met de echte kleuren en stijl van de app (groen = voetbalveld). Zo test je de gebruikersflow vóór je programmeert. Probeer: inloggen met <code>player1</code> / <code>player123</code>, zoeken, een voorspelling plaatsen, de filter en het klassement. Alles werkt met nepdata in de browser (geen server nodig).</div>
+    
+  </div>
+  <div class="hint">🔑 player1 / player123 · player2 / player456 · admin / admin123 &nbsp; <button onclick="resetProto()" style="border:0;border-radius:6px;padding:.2rem .6rem;cursor:pointer">↺ Reset</button></div>
+  <div class="proto-frame frame">
+    <div class="browser"><i></i><i></i><i></i><span id="proto-url">localhost:8082/</span></div>
+    <div id="proto" class="app"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ---------------- tabs ----------------
+function showTab(name) {
+    var names = ['wire', 'proto'];
+    for (var i = 0; i < names.length; i++) {
+        document.getElementById('tab-' + names[i]).classList.toggle('show', names[i] === name);
+        document.getElementById('t-' + names[i]).classList.toggle('active', names[i] === name);
+    }
+}
+
+// ---------------- voorbeelddata (zoals de seed) ----------------
+function daysFromNow(days) {
+    var d = new Date();
+    d.setDate(d.getDate() + days);
+    d.setHours(20, 0, 0, 0);
+    return d;
+}
+function formatDate(d) {
+    return d.toLocaleString('nl-BE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+var TEAMS = [
+    { name: 'Club Brugge', city: 'Brugge' }, { name: 'KAA Gent', city: 'Gent' },
+    { name: 'KRC Genk', city: 'Genk' }, { name: 'RSC Anderlecht', city: 'Brussel' },
+    { name: 'Royal Antwerp FC', city: 'Antwerpen' }, { name: 'Standard Luik', city: 'Luik' }
+];
+var USERS = [
+    { username: 'admin', password: 'admin123', role: 'admin' },
+    { username: 'player1', password: 'player123', role: 'player' },
+    { username: 'player2', password: 'player456', role: 'player' }
+];
+
+function startData() {
+    return {
+        user: null,
+        page: 'home',
+        error: '',
+        success: '',
+        search: '',
+        filter: 'all',
+        matches: [
+            { id: 'm4', home: 'RSC Anderlecht', away: 'KRC Genk', kickoff: daysFromNow(-1) },
+            { id: 'm5', home: 'Royal Antwerp FC', away: 'Club Brugge', kickoff: daysFromNow(2) },
+            { id: 'm6', home: 'Standard Luik', away: 'KRC Genk', kickoff: daysFromNow(5) },
+            { id: 'm7', home: 'KAA Gent', away: 'RSC Anderlecht', kickoff: daysFromNow(9) },
+            { id: 'm8', home: 'Club Brugge', away: 'KRC Genk', kickoff: daysFromNow(14) }
+        ],
+        predictions: {
+            player1: [
+                { match: 'Club Brugge - RSC Anderlecht', date: daysFromNow(-14), pred: '2 - 1', result: '2 - 1', points: 3 },
+                { match: 'KRC Genk - Royal Antwerp FC', date: daysFromNow(-7), pred: '2 - 0', result: '1 - 1', points: 0 },
+                { match: 'KAA Gent - Standard Luik', date: daysFromNow(-3), pred: '1 - 2', result: '0 - 2', points: 1 },
+                { match: 'RSC Anderlecht - KRC Genk', matchId: 'm4', date: daysFromNow(-1), pred: '1 - 0', result: null, points: null },
+                { match: 'Royal Antwerp FC - Club Brugge', matchId: 'm5', date: daysFromNow(2), pred: '1 - 1', result: null, points: null }
+            ],
+            player2: [
+                { match: 'Club Brugge - RSC Anderlecht', date: daysFromNow(-14), pred: '1 - 0', result: '2 - 1', points: 1 },
+                { match: 'KRC Genk - Royal Antwerp FC', date: daysFromNow(-7), pred: '0 - 0', result: '1 - 1', points: 1 },
+                { match: 'KAA Gent - Standard Luik', date: daysFromNow(-3), pred: '0 - 2', result: '0 - 2', points: 3 },
+                { match: 'RSC Anderlecht - KRC Genk', matchId: 'm4', date: daysFromNow(-1), pred: '2 - 2', result: null, points: null }
+            ]
+        }
+    };
+}
+var state = startData();
+
+function esc(text) {
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function contains(text, search) {
+    return text.toLowerCase().indexOf(search.trim().toLowerCase()) !== -1;
+}
+function myPredictions() {
+    return state.predictions[state.user.username] || [];
+}
+function findPrediction(matchId) {
+    var list = myPredictions();
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].matchId === matchId) { return list[i]; }
+    }
+    return null;
+}
+function totalPoints(username) {
+    var list = state.predictions[username] || [];
+    var total = 0;
+    for (var i = 0; i < list.length; i++) {
+        if (list[i].points !== null) { total = total + list[i].points; }
+    }
+    return total;
+}
+function ranking() {
+    var rows = [];
+    for (var i = 0; i < USERS.length; i++) {
+        if (USERS[i].role === 'player') {
+            rows.push({ username: USERS[i].username, points: totalPoints(USERS[i].username) });
+        }
+    }
+    rows.sort(function (a, b) { return b.points - a.points; });
+    for (var j = 0; j < rows.length; j++) {
+        if (j > 0 && rows[j].points === rows[j - 1].points) { rows[j].position = rows[j - 1].position; }
+        else { rows[j].position = j + 1; }
+    }
+    return rows;
+}
+
+// ---------------- schermen (HTML) ----------------
+function topbar(interactive) {
+    var html = '<header class="topbar"><span class="logo">⚽ Voorspellingen</span><nav>';
+    html += navLink('home', 'Home', interactive);
+    if (state.user && state.user.role === 'player') {
+        html += navLink('matches', 'Matches', interactive) + navLink('teams', 'Teams', interactive) +
+            navLink('predictions', 'Mijn voorspellingen', interactive) + navLink('ranking', 'Klassement', interactive);
+    }
+    html += '</nav>';
+    if (state.user) {
+        html += '<div class="user">' + esc(state.user.username) + ' (' + state.user.role + ') <button class="secondary" onclick="logout()">Uitloggen</button></div>';
+    }
+    return html + '</header>';
+}
+function navLink(page, label, interactive) {
+    var cls = state.page === page ? ' class="active"' : '';
+    var click = interactive ? ' onclick="go(\'' + page + '\')"' : '';
+    return '<a' + cls + click + '>' + label + '</a>';
+}
+function messages() {
+    var html = '';
+    if (state.error) { html += '<p class="error">' + esc(state.error) + '</p>'; }
+    if (state.success) { html += '<p class="success">' + esc(state.success) + '</p>'; }
+    return html;
+}
+
+function homeScreen() {
+    if (!state.user) {
+        return '<section class="card login"><h2>Inloggen</h2><form onsubmit="login(event)">' +
+            '<label for="pu">Gebruikersnaam</label><input id="pu" value="">' +
+            '<label for="pp">Wachtwoord</label><input id="pp" type="password" value="">' +
+            '<button type="submit">Inloggen</button></form>' + messages() + '</section>';
+    }
+    if (state.user.role === 'player') {
+        return '<section class="card"><h2>Welkom, ' + esc(state.user.username) + '!</h2>' +
+            '<p>Voorspel de uitslag van de komende matches en verdien punten:</p>' +
+            '<ul><li>juiste winnaar of gelijkspel: <b>+1</b></li><li>exacte uitslag: <b>+2</b> extra</li></ul>' +
+            '<button onclick="go(\'matches\')">Naar de matches</button> <button class="secondary" onclick="go(\'ranking\')">Bekijk het klassement</button></section>';
+    }
+    return '<section class="card"><h2>Welkom, admin!</h2><p>Je bent ingelogd als admin. Uitslagen invoeren gebeurt via de API (<code>POST /matches/:id/result</code>).</p></section>';
+}
+
+function matchesScreen() {
+    var rows = '';
+    var count = 0;
+    for (var i = 0; i < state.matches.length; i++) {
+        var m = state.matches[i];
+        if (!contains(m.home, state.search) && !contains(m.away, state.search)) { continue; }
+        count = count + 1;
+        var right;
+        var p = findPrediction(m.id);
+        if (p) { right = '<div class="badge">Jouw voorspelling: ' + p.pred + '</div>'; }
+        else if (m.kickoff <= new Date()) { right = '<div class="badge closed">Gesloten (match is begonnen)</div>'; }
+        else {
+            right = '<form class="pform" onsubmit="predict(event, \'' + m.id + '\')"><input type="number" min="0" value="0" id="h-' + m.id + '"><span>-</span>' +
+                '<input type="number" min="0" value="0" id="a-' + m.id + '"><button type="submit">Voorspel</button></form>';
+        }
+        rows += '<article class="card match"><div><div class="teams">' + m.home + ' <span class="muted">vs</span> ' + m.away + '</div>' +
+            '<div class="muted">' + formatDate(m.kickoff) + '</div></div>' + right + '</article>';
+    }
+    return '<h2>Komende matches</h2><div class="toolbar"><input type="search" placeholder="Zoek op team..." value="' + esc(state.search) + '" oninput="setSearch(this)">' +
+        '<span class="muted">' + count + ' match(es)</span></div>' + messages() + '<div class="list">' + rows + '</div>';
+}
+
+function teamsScreen() {
+    var cards = '';
+    var count = 0;
+    for (var i = 0; i < TEAMS.length; i++) {
+        if (!contains(TEAMS[i].name, state.search) && !contains(TEAMS[i].city, state.search)) { continue; }
+        count = count + 1;
+        cards += '<article class="card"><div class="teams">' + TEAMS[i].name + '</div><div class="muted">📍 ' + TEAMS[i].city + '</div></article>';
+    }
+    return '<h2>Teams</h2><div class="toolbar"><input type="search" placeholder="Zoek op naam of stad..." value="' + esc(state.search) + '" oninput="setSearch(this)">' +
+        '<span class="muted">' + count + ' team(s)</span></div><div class="grid">' + cards + '</div>';
+}
+
+function predictionsScreen() {
+    var list = myPredictions();
+    var rows = '';
+    for (var i = 0; i < list.length; i++) {
+        var p = list[i];
+        if (state.filter === 'open' && p.points !== null) { continue; }
+        if (state.filter === 'finished' && p.points === null) { continue; }
+        rows += '<tr><td>' + p.match + '</td><td>' + formatDate(p.date) + '</td><td>' + p.pred + '</td><td>' +
+            (p.result ? p.result : '<span class="muted">nog niet</span>') + '</td><td>' +
+            (p.points !== null ? '<span class="points">' + p.points + '</span>' : '<span class="muted">-</span>') + '</td></tr>';
+    }
+    function opt(value, label) {
+        return '<option value="' + value + '"' + (state.filter === value ? ' selected' : '') + '>' + label + '</option>';
+    }
+    return '<h2>Mijn voorspellingen</h2><div class="toolbar"><select onchange="setFilter(this)">' + opt('all', 'Alle') + opt('open', 'Nog open') + opt('finished', 'Afgelopen') +
+        '</select><span class="muted">Totaal: <b>' + totalPoints(state.user.username) + '</b> punten</span></div>' +
+        '<div class="table-wrap"><table><thead><tr><th>Match</th><th>Datum</th><th>Voorspelling</th><th>Uitslag</th><th>Punten</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
+function rankingScreen() {
+    var rows = ranking();
+    var me = null;
+    var body = '';
+    for (var i = 0; i < rows.length; i++) {
+        if (rows[i].username === state.user.username) { me = rows[i]; }
+        if (!contains(rows[i].username, state.search)) { continue; }
+        body += '<tr' + (rows[i].username === state.user.username ? ' class="me"' : '') + '><td>' + rows[i].position + '</td><td>' + rows[i].username + '</td><td>' + rows[i].points + '</td></tr>';
+    }
+    return '<h2>Klassement</h2><div class="card highlight">Je staat op plaats <b>' + me.position + '</b> van ' + rows.length + ' met <b>' + me.points + '</b> punten.</div>' +
+        '<div class="toolbar"><input type="search" placeholder="Zoek speler..." value="' + esc(state.search) + '" oninput="setSearch(this)"></div>' +
+        '<div class="table-wrap"><table><thead><tr><th>Plaats</th><th>Speler</th><th>Punten</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+}
+
+function screenHtml(interactive) {
+    var page;
+    if (state.page === 'matches') { page = matchesScreen(); }
+    else if (state.page === 'teams') { page = teamsScreen(); }
+    else if (state.page === 'predictions') { page = predictionsScreen(); }
+    else if (state.page === 'ranking') { page = rankingScreen(); }
+    else { page = homeScreen(); }
+    return topbar(interactive) + '<main class="page">' + page + '</main>';
+}
+
+// ---------------- prototype: klikbaar ----------------
+var URLS = { home: '/', matches: '/matches', teams: '/teams', predictions: '/predictions', ranking: '/ranking' };
+function render() {
+    document.getElementById('proto').innerHTML = screenHtml(true);
+    document.getElementById('proto-url').textContent = 'localhost:8082' + URLS[state.page];
+}
+function go(page) {
+    state.page = page;
+    state.search = '';
+    state.error = '';
+    state.success = '';
+    render();
+}
+function login(event) {
+    event.preventDefault();
+    var inputs = event.target.querySelectorAll('input');
+    var username = inputs[0].value;
+    var password = inputs[1].value;
+    state.error = '';
+    for (var i = 0; i < USERS.length; i++) {
+        if (USERS[i].username === username && USERS[i].password === password) {
+            state.user = USERS[i];
+            go(USERS[i].role === 'player' ? 'matches' : 'home');
+            return;
+        }
+    }
+    state.error = 'Cannot login with these credentials';
+    render();
+}
+function logout() {
+    state.user = null;
+    go('home');
+}
+function predict(event, matchId) {
+    event.preventDefault();
+    var inputs = event.target.querySelectorAll('input');
+    var home = Number(inputs[0].value);
+    var away = Number(inputs[1].value);
+    state.error = '';
+    state.success = '';
+    if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) {
+        state.error = 'homeScore and awayScore must be whole numbers of 0 or more';
+        render();
+        return;
+    }
+    var match = null;
+    for (var i = 0; i < state.matches.length; i++) {
+        if (state.matches[i].id === matchId) { match = state.matches[i]; }
+    }
+    myPredictions().push({ match: match.home + ' - ' + match.away, matchId: matchId, date: match.kickoff, pred: home + ' - ' + away, result: null, points: null });
+    state.success = 'Je voorspelling is opgeslagen!';
+    render();
+}
+function setSearch(input) {
+    state.search = input.value;
+    var position = input.selectionStart;
+    render();
+    var again = document.querySelector('#proto input[type=search]');
+    if (!again) { return; }
+    again.focus();
+    again.setSelectionRange(position, position);
+}
+function setFilter(select) {
+    state.filter = select.value;
+    render();
+}
+function resetProto() {
+    state = startData();
+    render();
+}
+
+render();
+</script>
+</body>
+</html>
