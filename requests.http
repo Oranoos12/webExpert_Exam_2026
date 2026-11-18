@@ -15,5 +15,20 @@ POST {{baseUrl}}/security/login/check
 ### Nieuw access token vragen met het refresh token -> 200
 POST {{baseUrl}}/security/refresh
 
+### ---------- 2. MATCHES ----------
+### 2x versturen: in de terminal van de server zie je "Cache MISS" en daarna "Cache HIT"
+GET {{baseUrl}}/matches
+​
+###
+GET {{baseUrl}}/matches?status=finished
+​
+### upcoming: [0] = al begonnen, [1] = player1 heeft al voorspeld, [2] = vrij
+# @name upcoming
+GET {{baseUrl}}/matches?status=upcoming
+​
+### fout statusfilter -> 400
+GET {{baseUrl}}/matches?status=bestaatniet
+
+
 ### ---------- 3. TEAMS ----------
 GET {{baseUrl}}/teams
