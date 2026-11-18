@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:3000
+
+### ---------- 1. LOGIN ALS PLAYER ----------
+POST {{baseUrl}}/security/login
+Content-Type: application/json
+
+{
+  "username": "player1",
+  "password": "player123"
+}
+
+### Wie is er ingelogd?
+POST {{baseUrl}}/security/login/check
+
+### Nieuw access token vragen met het refresh token -> 200
+POST {{baseUrl}}/security/refresh

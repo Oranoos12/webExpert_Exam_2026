@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const securityRouter = require('../routes/security');
 const { errorHandler, routeNotFound } = require('../middleware/error');
 
 function loadExpress(corsOptions) {
@@ -16,7 +17,7 @@ function loadExpress(corsOptions) {
     app.use(express.json());                 // JSON body lezen -> req.body
     app.use(cookieParser());                 // cookies lezen -> req.cookies
 
-    // hier komen later de routers
+     app.use('/security', securityRouter);
 
     app.all('/{*splat}', routeNotFound);     // onbekende route -> 404
     app.use(errorHandler);                   // ALTIJD als laatste
