@@ -25,4 +25,16 @@ async function placePrediction(req, res, next) {
     }
 }
 
-module.exports = { getMatches, placePrediction};
+// POST /matches/:id/result (admin)
+// 202 Accepted: de uitslag is opgeslagen, de punten worden later berekend door de consumer.
+async function enterResult(req, res, next) {
+    try {
+        const body = req.body || {};
+        const match = await matchService.enterResult(req.params.id, body.homeScore, body.awayScore);
+        res.status(202).json(match);
+    } catch (err) {
+        next(err);
+    }
+}
+
+module.exports = { getMatches, placePrediction, enterResult};
