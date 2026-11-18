@@ -1,1 +1,231 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* bovenbalk met navigatie */
+.topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.5rem;
+    background: #14532d;
+    color: white;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.topbar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    flex: 1;
+}
+
+.topbar nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+.topbar nav a.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem 16px;
+}
+
+/* kaarten en lijsten */
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.8rem;
+}
+
+.match {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.teams {
+    font-weight: bold;
+    font-size: 1.05rem;
+}
+
+.muted {
+    color: #64748b;
+}
+
+.badge {
+    background: #dcfce7;
+    color: #14532d;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+}
+
+.badge.closed {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.highlight {
+    background: #fef9c3;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+/* formulieren */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+input,
+select {
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.toolbar input {
+    flex: 1;
+    min-width: 200px;
+}
+
+button,
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background: #16a34a;
+    color: white;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button.secondary,
+.button.secondary {
+    background: #475569;
+}
+
+button:disabled {
+    background: #94a3b8;
+}
+
+.login {
+    max-width: 380px;
+    margin: 2rem auto;
+}
+
+.login form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.prediction-form {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.prediction-form input {
+    width: 4rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* meldingen */
+.error {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 0.6rem;
+    border-radius: 6px;
+}
+
+.success {
+    background: #dcfce7;
+    color: #15803d;
+    padding: 0.6rem;
+    border-radius: 6px;
+}
+
+/* tabellen */
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 0.6rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #f8fafc;
+}
+
+tr.me {
+    background: #fef9c3;
+    font-weight: bold;
+}
+
+.points {
+    font-weight: bold;
+    color: #15803d;
+}

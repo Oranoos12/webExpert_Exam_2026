@@ -2,5 +2,7 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { App } from './app/app';
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+// Start de Angular-app met App als hoofdcomponent.
+bootstrapApplication(App, appConfig).catch(function (err) {
+  console.error(err);
+});
