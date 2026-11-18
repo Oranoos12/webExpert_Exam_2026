@@ -37,6 +37,35 @@ services:
       interval: 5s
       timeout: 10s
       retries: 20
-
+  api:
+    build: ../server
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    env_file: ../server/.env
+    environment:
+      DATABASE_CONNECTION: mongodb://admin:secret@mongo:27017/prediction_db?authSource=admin
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+  consumer:
+    build: ../server
+    command: ["node", "consumer.js"]
+    restart: on-failure
+    env_file: ../server/.env
+    environment:
+      DATABASE_CONNECTION: mongodb://admin:secret@mongo:27017/prediction_db?authSource=admin
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      mongo:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 volumes:
   mongo-db:

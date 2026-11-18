@@ -53,16 +53,16 @@ async function enterResult(matchId, homeScore, awayScore) {
     if (match.status === 'finished') {
         throw new ValidationError('A result has already been entered for this match');
     }
-​
+
     // de uitslag opslaan en de match op 'finished' zetten
     match.homeScore = homeScore;
     match.awayScore = awayScore;
     match.status = 'finished';
     await match.save();
-​
+
     // de matches zijn veranderd -> cache van GET /matches ongeldig maken
     await cacheService.deleteCache(cacheService.MATCH_CACHE_KEYS);
-​
+
     // het event publiceren; de consumer berekent de punten
     rabbitmq.publishEvent({
         event: rabbitmq.QUEUE,
@@ -70,7 +70,7 @@ async function enterResult(matchId, homeScore, awayScore) {
         homeScore: homeScore,
         awayScore: awayScore
     });
-​
+
     return match;
 }
 

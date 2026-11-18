@@ -84,7 +84,7 @@ async function placePrediction(matchId, userId, homeScore, awayScore) {
     if (existing) {
         throw new ValidationError('You already placed a prediction for this match');
     }
-​
+
     const prediction = new Prediction({
         user: userId,
         match: match._id,

@@ -18,14 +18,14 @@ POST {{baseUrl}}/security/refresh
 ### ---------- 2. MATCHES ----------
 ### 2x versturen: in de terminal van de server zie je "Cache MISS" en daarna "Cache HIT"
 GET {{baseUrl}}/matches
-​
+
 ###
 GET {{baseUrl}}/matches?status=finished
-​
+
 ### upcoming: [0] = al begonnen, [1] = player1 heeft al voorspeld, [2] = vrij
 # @name upcoming
 GET {{baseUrl}}/matches?status=upcoming
-​
+
 ### fout statusfilter -> 400
 GET {{baseUrl}}/matches?status=bestaatniet
 
@@ -35,6 +35,131 @@ GET {{baseUrl}}/teams
 
 ### ---------- 4. MIJN VOORSPELLINGEN ----------
 GET {{baseUrl}}/player/predictions
-​
+
 ### ---------- 5. KLASSEMENT ----------
 GET {{baseUrl}}/player/ranking
+
+### ---------- 6a. VOORSPELLING PLAATSEN ----------
+### OK -> 201 (tweede keer -> 400: al voorspeld)
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[2]._id}}/predictions
+Content-Type: application/json
+
+{
+  "homeScore": 2,
+  "awayScore": 1
+}
+
+### match al begonnen -> 400
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[0]._id}}/predictions
+Content-Type: application/json
+
+{
+  "homeScore": 2,
+  "awayScore": 1
+}
+
+### al een voorspelling -> 400
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[1]._id}}/predictions
+Content-Type: application/json
+
+{
+  "homeScore": 0,
+  "awayScore": 0
+}
+
+### negatieve score -> 400
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[3]._id}}/predictions
+Content-Type: application/json
+
+{
+  "homeScore": -1,
+  "awayScore": 0
+}
+
+### score is tekst -> 400
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[3]._id}}/predictions
+Content-Type: application/json
+
+{
+  "homeScore": "twee",
+  "awayScore": 0
+}
+
+### match bestaat niet -> 400
+POST {{baseUrl}}/matches/aaaaaaaaaaaaaaaaaaaaaaaa/predictions
+Content-Type: application/json
+
+{
+  "homeScore": 1,
+  "awayScore": 0
+}
+
+### player mag geen uitslag invoeren -> 403
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[0]._id}}/result
+Content-Type: application/json
+
+{
+  "homeScore": 1,
+  "awayScore": 0
+}
+
+### ---------- LOGIN ALS ADMIN ----------
+POST {{baseUrl}}/security/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### admin mag niet aan /player -> 403
+GET {{baseUrl}}/player/ranking
+
+### ---------- 6b. UITSLAG INVOEREN ----------
+### OK -> 202 Accepted (tweede keer -> 400: al een uitslag)
+### De consumer berekent daarna de punten (zie de terminal van de consumer).
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[0]._id}}/result
+Content-Type: application/json
+
+{
+  "homeScore": 1,
+  "awayScore": 0
+}
+
+### score ontbreekt -> 400
+POST {{baseUrl}}/matches/{{upcoming.response.body.$[1]._id}}/result
+Content-Type: application/json
+
+{
+  "homeScore": 1
+}
+
+### match bestaat niet -> 400
+POST {{baseUrl}}/matches/aaaaaaaaaaaaaaaaaaaaaaaa/result
+Content-Type: application/json
+
+{
+  "homeScore": 1,
+  "awayScore": 0
+}
+
+### ---------- KLASSEMENT NA DE CONSUMER ----------
+POST {{baseUrl}}/security/login
+Content-Type: application/json
+
+{
+  "username": "player1",
+  "password": "player123"
+}
+
+### player1 voorspelde 1-0 -> 3 punten erbij: nu 7 punten, plaats 1
+GET {{baseUrl}}/player/ranking
+
+### ---------- UITLOGGEN ----------
+POST {{baseUrl}}/security/logout
+
+### na uitloggen -> 401
+GET {{baseUrl}}/teams
+
+### na uitloggen kan je ook niet meer vernieuwen -> 401
+POST {{baseUrl}}/security/refresh
